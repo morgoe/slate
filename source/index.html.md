@@ -2,7 +2,7 @@
 title: API Reference
 
 language_tabs:
-  - shell
+  - shell: SHEll
   - ruby
   - python
   - javascript
@@ -16,6 +16,275 @@ includes:
 
 search: true
 ---
+
+
+# EMVPadReset
+
+cURL
+
+
+Example request using the cURL utility.This example assumes there is a file called emv_test_request.xml in the active directory which contains the text of an XML transaction request:
+
+```shell
+curl - X POST https: //trancloud.dsipscs.com/ProcessEMVTransaction ^
+--data @emv_test_request.xml ^
+--basic--user "TestUser:TestAuthCode48446" ^
+--header "UserTrace: testing with curl" ^
+--header "Content-Type: application/xml"
+```
+
+The same example with a JSON request format with file test_request.json:
+
+```shell
+curl - X POST https: //trancloud.dsipscs.com/ProcessEMVTransaction ^
+--data @emv_test_request.json ^
+--basic--user "TestUser:TestAuthCode48446" ^
+--header "UserTrace: testing with curl" ^
+--header "Content-Type: application/json"
+```
+
+Note that the carrot( ^ ) symbol is the new - line escape character only
+for Windows;
+if you are using a bash shell on Linux or Unix, you would use a backslash(\) in place of the carrot symbols.
+
+AJAX / jQuery
+
+Example using AJAX with jQuery:
+
+Apple
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+:   The fruit of an evergreen tree of the genus Citrus.
+
+<pre class="javascript tab-javascript">
+  <code>
+    ```
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>  
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+          $.support.cors = true;
+        }
+
+        function testTransactionJSON() {
+          var endpoint = "https://trancloud.dsipscs.com/ProcessEMVTransaction";
+          var accountId = "TestUser";
+          var authCode = "TestAuthCode48446";
+
+          var transRequest = new Object();
+          transRequest['TStream'] = new Object();
+          transRequest['TStream']['Transaction'] = new Object();
+
+          var trs = transRequest['TStream']['Transaction'];
+          trs['MerchantID'] = "003503902913105";
+          trs['OperatorID'] = "TEST";
+          trs['TranCode'] = "EMVSale";
+          trs['InvoiceNo'] = "100";
+          trs['RefNo'] = "100";
+          trs['SecureDevice'] = "CloudEMV2";
+          trs['RecordNo'] = "RecordNumberRequested";
+          trs['Frequency'] = "OneTime";
+
+          trs['Amount'] = new Object();
+          trs['Amount']['Purchase'] = "1.25";
+          trs['Amount']['Gratuity'] = "0.75";
+
+          trs['SequenceNo'] = "0010010010";
+
+          trs['TranDeviceID'] = "PT9999999999";
+          trs['PinPadIpAddress'] = "10.0.0.155";
+          trs['PinPadIpPort'] = "12000";
+
+          trs['UserTrace'] = "my user trace";
+
+          var headers = new Object();
+          headers['Authorization'] = "Basic " + btoa(accountId + ":" + authCode);
+
+          $.ajax({
+            url: endpoint,
+            type: "POST",
+            headers: headers,
+            contentType: "application/json; charset:utf-8;",
+            data: JSON.stringify(transRequest),
+            error: function(xhr, textStatus, errorThrown) {
+              // handle error
+            },
+            dataType: "json"
+          }).done(function(response) {
+            var rst = response['RStream'];
+            alert("Response Origin:  " + rst['ResponseOrigin'] + "\nReturn code:  " + rst['DSIXReturnCode'] + "\nStatus:  " + rst['CmdStatus'] + "\nText Response:  " + rst['TextResponse'] + "\nUser Trace:  " + rst['UserTrace']);
+          });
+        } 
+      </script>
+    ```
+  </code>
+</pre>
+
+```javascript
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>  
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $.support.cors = true;
+  }
+
+  function testTransactionJSON() {
+    var endpoint = "https://trancloud.dsipscs.com/ProcessEMVTransaction";
+    var accountId = "TestUser";
+    var authCode = "TestAuthCode48446";
+
+    var transRequest = new Object();
+    transRequest['TStream'] = new Object();
+    transRequest['TStream']['Transaction'] = new Object();
+
+    var trs = transRequest['TStream']['Transaction'];
+    trs['MerchantID'] = "003503902913105";
+    trs['OperatorID'] = "TEST";
+    trs['TranCode'] = "EMVSale";
+    trs['InvoiceNo'] = "100";
+    trs['RefNo'] = "100";
+    trs['SecureDevice'] = "CloudEMV2";
+    trs['RecordNo'] = "RecordNumberRequested";
+    trs['Frequency'] = "OneTime";
+
+    trs['Amount'] = new Object();
+    trs['Amount']['Purchase'] = "1.25";
+    trs['Amount']['Gratuity'] = "0.75";
+
+    trs['SequenceNo'] = "0010010010";
+
+    trs['TranDeviceID'] = "PT9999999999";
+    trs['PinPadIpAddress'] = "10.0.0.155";
+    trs['PinPadIpPort'] = "12000";
+
+    trs['UserTrace'] = "my user trace";
+
+    var headers = new Object();
+    headers['Authorization'] = "Basic " + btoa(accountId + ":" + authCode);
+
+    $.ajax({
+      url: endpoint,
+      type: "POST",
+      headers: headers,
+      contentType: "application/json; charset:utf-8;",
+      data: JSON.stringify(transRequest),
+      error: function(xhr, textStatus, errorThrown) {
+        // handle error
+      },
+      dataType: "json"
+    }).done(function(response) {
+      var rst = response['RStream'];
+      alert("Response Origin:  " + rst['ResponseOrigin'] + "\nReturn code:  " + rst['DSIXReturnCode'] + "\nStatus:  " + rst['CmdStatus'] + "\nText Response:  " + rst['TextResponse'] + "\nUser Trace:  " + rst['UserTrace']);
+    });
+  } 
+</script>
+```
+
+
+Use: To reset and ready the EMV PIN pad device for a new transaction.
+
+Notes: This command must be performed before every transaction (Sale, VoidSale, Return, VoidReturn, VoiceAuth and ZeroAuth) to assure that no card is in the EMV PIN pad chip card (insertion) reader before starting a new transaction.  This command should also be performed at the end of any card related transaction (Sale, VoidSale, Return, VoidReturn, VoiceAuth and ZeroAuth) to assure that the user is prompted to remove their card.  If no EMV chip card is inserted in the reader, then an EMVPadReset will return a successful response in one second.  If there’s an EMV chip card in the reader, then the EMVPadReset command will wait up to 15 seconds for removal.  If the card is removed within that timeframe, then a successful response is returned when the card is removed. If the chip card remains in the reader after 15 seconds, an error response is returned "TRANSACTION NOT COMPLETE - Card Not Removed".
+
+XML Request Template:
+
+Field values in BOLD are required.  Field values in LIGHT GRAY are optional and extend the functionality of the basic transaction.  See the following XML element table for use of both required and optional fields.
+
+```xml
+<?xml version=“1.0”?>
+<TStream>
+  <Transaction> 
+    <MerchantID>MerchantID</MerchantID>
+    <TerminalID>TerminalID</TerminalID>
+    <OperatorID>OperatorID</OperatorID>
+    <UserTrace>UserTrace</UserTrace>
+    <TranCode>EMVPadReset</TranCode>
+    <SecureDevice>SecureDevice</SecureDevice>
+    <SequenceNo>SequenceNo</SequenceNo>
+    <TranDeviceID>TranDeviceID</TranDeviceID>
+    <PinPadIpAddress>PinPadIpAddress</PinPadIpAddress>
+    <PinPadMACAddress>PinPadMACAddress</PinPadMACAddress>
+    <PinPadIpPort>PinPadIpPort</PinPadIpPort>
+  </Transaction>
+</TStream>
+```
+
+
+
+Element | Req | Min | Max | Type | Description/Value
+-- | -- | -- | -- | -- | --
+MerchantID | Y | 1 | 24 | A | Merchant identification assigned by processor.
+TerminalID | Y | 1 | 24 | A | Terminal ID data must be supplied in this tag only if required by the processor or merchant service provider; otherwise this tag should not be included.  The POS system should store this value as a parameter to be included when required.
+OperatorID | O | 1 | 24 | A | Operator (clerk, server, etc.) associated with the transaction.
+UserTrace | O | 1 | 24 | A | A unique value created and supplied by POS system.
+TranCode | Y | 1 | 40 | A | “EMVPadReset”
+SecureDevice | Y | 1 | 24 | A | “CloudEMV2” or a specific value as shown in Section 1.4
+SequenceNo | Y | 10 | 12 | A | Use the value returned for <SequenceNo> from the last response.  If the SequenceNo is lost or for initial deployment of the PIN pad, the ECR/POS should attempt any transaction (using “0010010010” as a SequenceNo value) to re-sync.
+TranDeviceID | O | 10 | 10 | A | The tran device ID in the format PT9999999999. This must be given either in the request body or as an HTTP header.
+PinPadIpAddress | O | 7 | 15 | A | IP (v4) address of PIN pad on local network.
+PinPadMACAddress | O | 12 | 17 | A | MAC (Media Access Control) address of PIN pad; delimited by colons, hyphens, or with no delimiter.
+PinPadIpPort | O | 1 | 5 | N | IP port of PIN pad. Defaults to 12000.
+
+Legend: A Alphanumeric    N Numeric
+    O Optional    R Required
+
+
+#### Sample EMVPadReset Request
+
+Using PinPadIpAddress:
+
+```xml--PinPadIpAddress
+<?xml version="1.0"?>
+<TStream>
+  <Transaction>
+    <MerchantID>700000000245</MerchantID>
+    <TerminalID>001</TerminalID>
+    <OperatorID>TEST</OperatorID>
+    <UserTrace>Dev1</UserTrace>
+    <TranCode>EMVPadReset</TranCode>
+    <SecureDevice>CloudEMV2</SecureDevice>
+    <SequenceNo>0010010010</SequenceNo>
+    <TranDeviceID>PT9999999999</TranDeviceID>
+    <PinPadIpAddress>10.0.0.155</PinPadIpAddress>
+    <PinPadIpPort>12000</PinPadIpPort>
+  </Transaction>
+</TStream>
+```
+
+Using PinPadMACAddress:
+
+```xml--PinPadMACAddress
+<?xml version="1.0"?>
+<TStream>
+  <Transaction>
+    <MerchantID>700000000245</MerchantID>
+    <TerminalID>001</TerminalID>
+    <OperatorID>TEST</OperatorID>
+    <UserTrace>Dev1</UserTrace>
+    <TranCode>EMVPadReset</TranCode>
+    <SecureDevice>CloudEMV2</SecureDevice>
+    <SequenceNo>0010010010</SequenceNo>
+    <TranDeviceID>PT9999999999</TranDeviceID>
+    <PinPadMACAddress>54:E1:40:13:57:AF</PinPadMACAddress>
+    <PinPadIpPort>12000</PinPadIpPort>
+  </Transaction>
+</TStream>
+```
+
+Sample EMVPadReset Response
+
+```xml
+<?xml version="1.0"?>
+<RStream>
+<ResponseOrigin>Client</ResponseOrigin>
+<DSIXReturnCode>000000</DSIXReturnCode>
+<CmdStatus>Success</CmdStatus>
+<TextResponse>Reset Successful.</TextResponse>
+<SequenceNo>0010010010</SequenceNo>
+<UserTrace>Dev1</UserTrace>
+</RStream>
+```
 
 # Introduction
 
